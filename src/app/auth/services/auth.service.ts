@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 import { AuthResponse, Usuario } from '../interfaces/interfaces';
-import { catchError, map, of, tap } from 'rxjs';
+import { catchError, map, of, tap, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -31,13 +31,13 @@ export class AuthService {
     return this.http.post<AuthResponse>(url, body)
       .pipe(
         tap(resp => {
-          if(resp.ok){
+          if (resp.ok) {
 
             localStorage.setItem('token', resp.token!);
 
             this._usuario = {
               name: resp.name!,
-              uid: resp.id!
+              uid: resp.uid!
             }
           }
         }),
@@ -46,13 +46,26 @@ export class AuthService {
       )
   }
 
-  validarToken(){
+  validarToken(): Observable<boolean> {
     const url = `${this.baseUrl}/auth/renew`
     const headers = new HttpHeaders()
-    .set('x-token',localStorage.getItem('token') || '' );
+      .set('x-token', localStorage.getItem('token') || '');
 
+    return this.http.get<AuthResponse>(url, { headers })
+      .pipe(
+        map(resp => {
 
-    return this.http.get(url, {headers});
+          localStorage.setItem('token', resp.token!);
+
+            this._usuario = {
+              name: resp.name!,
+              uid: resp.uid!
+            }
+
+          return resp.ok
+        }),
+        catchError(err => of(false))
+    );
 
   }
 
