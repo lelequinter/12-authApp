@@ -19,7 +19,7 @@ export class AuthService {
 
   constructor(private http: HttpClient) { }
 
-  registro(name: string, email:string, password: string){
+  registro(name: string, email: string, password: string) {
     const url = `${this.baseUrl}/auth/new`
 
     const body = {
@@ -29,15 +29,15 @@ export class AuthService {
     }
 
     return this.http.post<AuthResponse>(url, body)
-    .pipe(
-      tap(resp => {
-        if( resp.ok){
-          localStorage.setItem('token', resp.token!);
-        }
-      }),
-      map(resp => resp.ok),
-      catchError(err => of(err.error.msg))
-    )
+      .pipe(
+        tap(({ok, token}) => {
+          if (ok) {
+            localStorage.setItem('token', token!);
+          }
+        }),
+        map(resp => resp.ok),
+        catchError(err => of(err.error.msg))
+      )
 
   }
 
@@ -54,13 +54,7 @@ export class AuthService {
       .pipe(
         tap(resp => {
           if (resp.ok) {
-
             localStorage.setItem('token', resp.token!);
-
-            this._usuario = {
-              name: resp.name!,
-              uid: resp.uid!
-            }
           }
         }),
         map(resp => resp.ok),
@@ -79,18 +73,19 @@ export class AuthService {
 
           localStorage.setItem('token', resp.token!);
 
-            this._usuario = {
-              name: resp.name!,
-              uid: resp.uid!
-            }
+          this._usuario = {
+            name: resp.name!,
+            uid: resp.uid!,
+            email: resp.email!
+          }
 
           return resp.ok
         }),
         catchError(err => of(false))
-    );
+      );
   }
 
-  logout(){
+  logout() {
     localStorage.clear();
   }
 
