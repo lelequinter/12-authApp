@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
+import Swal from "sweetalert2";
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
@@ -18,13 +20,22 @@ export class RegisterComponent {
 
   constructor(
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) { }
 
   register() {
-    console.log(this.miFormulario.value);
-    console.log(this.miFormulario.valid);
-    this.router.navigateByUrl('/dashboard');
+
+    const { name, email, password } = this.miFormulario.value;
+    this.authService.registro(name, email, password)
+    .subscribe( ok =>{
+      if ( ok === true ){
+        this.router.navigateByUrl('/dashboard');
+      }else {
+        //TODO mostrar mensaje de error
+        Swal.fire('Error', ok, 'error')
+      }
+    });
   }
 
 }
