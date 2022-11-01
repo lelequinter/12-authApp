@@ -24,14 +24,19 @@ export class LoginComponent {
   ) { }
 
   login() {
-    console.log(this.miFormulario.value);
+    // console.log(this.miFormulario.value);
 
     const { email, password } = this.miFormulario.value;
 
-    this.authService.login(email, password).subscribe(resp => {
-      console.log(resp);
+    this.authService.login(email, password).subscribe(ok => {
+      // console.log(resp);
+      if(ok){
+        this.router.navigateByUrl('/dashboard')
+      }else{
+        //TODO mostrar mensaje de error
+
+      }
     })
-    // this.router.navigateByUrl('/dashboard')
   }
 
 }
